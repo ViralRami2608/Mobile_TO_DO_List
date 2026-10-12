@@ -1,0 +1,703 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f6f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Daylight — My Daily Planner</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f7f6f1;
+      --card: #ffffff;
+      --text: #292e28;
+      --muted: #858980;
+      --green: #647b62;
+      --green-light: #e8eee4;
+      --line: #e9e9e1;
+      --input: #f7f7f2;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+      transition: background .25s, color .25s;
+    }
+
+    body.dark {
+      --bg: #20251f;
+      --card: #2a3029;
+      --text: #f0f0e8;
+      --muted: #a9afa3;
+      --green: #b3c9a9;
+      --green-light: #394537;
+      --line: #3b4238;
+      --input: #333a31;
+    }
+
+    button, input, select { font: inherit; }
+
+    .app {
+      max-width: 600px;
+      margin: auto;
+      padding: 26px 20px 40px;
+      padding-top: max(26px, env(safe-area-inset-top));
+      padding-bottom: max(40px, env(safe-area-inset-bottom));
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 35px;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -.6px;
+    }
+
+    .brand span { color: var(--green); }
+
+    .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(35px, 9vw, 46px);
+      letter-spacing: -1.5px;
+      line-height: 1.15;
+      margin: 10px 0;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 25px;
+    }
+
+    .progress-card {
+      background: var(--green-light);
+      border-radius: 22px;
+      padding: 21px;
+      margin-bottom: 28px;
+    }
+
+    .progress-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      line-height: 1.1;
+    }
+
+    .progress-copy {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .progress {
+      height: 6px;
+      background: color-mix(in srgb, var(--green) 18%, transparent);
+      border-radius: 20px;
+      margin-top: 19px;
+    }
+
+    .progress-bar {
+      background: var(--green);
+      border-radius: 20px;
+      transition: width .3s ease;
+    }
+
+    .section-heading {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -.3px;
+    }
+
+    .task-count {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .add-card {
+      display: flex;
+      gap: 9px;
+      margin: 15px 0 19px;
+    }
+
+    .task-input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--card);
+      color: var(--text);
+      padding: 14px;
+      outline: none;
+      font-size: 13px;
+    }
+
+    .task-input:focus, .field:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px var(--green-light);
+    }
+
+    .add-btn {
+      border: 0;
+      background: var(--green);
+      color: white;
+      width: 49px;
+      min-width: 49px;
+      border-radius: 15px;
+      font-size: 21px;
+      cursor: pointer;
+    }
+
+    body.dark .add-btn { color: #20251f; }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 16px;
+      scrollbar-width: none;
+    }
+
+    .filters::-webkit-scrollbar { display: none; }
+
+    .filter-btn {
+      flex-shrink: 0;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--muted);
+      border-radius: 30px;
+      padding: 9px 15px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .filter-btn.active {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+    }
+
+    body.dark .filter-btn.active { color: #20251f; }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .task {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      padding: 15px 13px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: appear .2s ease;
+    }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .check {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
+      border: 1.5px solid #bfc6b8;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .check:checked {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .check:checked::after {
+      content: '✓';
+      color: white;
+      font-size: 13px;
+    }
+
+    .task-content { flex: 1; min-width: 0; }
+
+    .task-title {
+      font-size: 13px;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    .task.completed .task-title {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .tag {
+      border-radius: 6px;
+      padding: 4px 7px;
+      background: var(--green-light);
+      color: var(--green);
+    }
+
+    .priority {
+      color: #bc8068;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 3px;
+    }
+
+    .task-action {
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      width: 30px;
+      height: 34px;
+      border-radius: 9px;
+      cursor: pointer;
+    }
+
+    .task-action:active { background: var(--green-light); }
+
+    .empty {
+      text-align: center;
+      padding: 36px 15px;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .empty i {
+      display: block;
+      font-size: 28px;
+      color: var(--green);
+      margin-bottom: 12px;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 32px;
+      letter-spacing: .5px;
+    }
+
+    .modal-content {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+    }
+
+    .field {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--input);
+      color: var(--text);
+      outline: none;
+      font-size: 13px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .modal-header, .modal-footer { border-color: var(--line); }
+
+    .save-btn {
+      background: var(--green);
+      border: 0;
+      color: white;
+      border-radius: 12px;
+      padding: 11px 18px;
+      font-size: 13px;
+    }
+
+    body.dark .save-btn { color: #20251f; }
+
+    @media (max-width: 380px) {
+      .app { padding-left: 15px; padding-right: 15px; }
+      .task { gap: 9px; padding: 13px 10px; }
+      .task-action { width: 26px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand"><i class="bi bi-sun me-2"></i>day<span>light.</span></div>
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">
+        <i class="bi bi-moon-stars" id="themeIcon"></i>
+      </button>
+    </header>
+
+    <section>
+      <div class="eyebrow" id="todayLabel">YOUR DAILY SPACE</div>
+      <h1>A little progress<br>every day.</h1>
+      <p class="subtitle">Make room for what matters to you.</p>
+    </section>
+
+    <section class="progress-card">
+      <div class="d-flex justify-content-between align-items-center gap-3">
+        <div>
+          <div class="progress-number" id="progressNumber">0%</div>
+          <div class="progress-copy" id="progressCopy">Your day is full of possibilities.</div>
+        </div>
+        <div class="text-end">
+          <div class="section-heading" id="doneCount">0 / 0</div>
+          <div class="progress-copy">tasks completed</div>
+        </div>
+      </div>
+      <div class="progress" role="progressbar" aria-label="Daily completion">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="section-heading">Your tasks</div>
+        <div class="task-count" id="taskCount">0 tasks</div>
+      </div>
+
+      <form class="add-card" id="addForm">
+        <input class="task-input" id="taskInput" maxlength="180"
+          placeholder="What would you like to do?" autocomplete="off"
+          aria-label="New task" required>
+        <button class="add-btn" type="submit" aria-label="Add task">
+          <i class="bi bi-plus-lg"></i>
+        </button>
+      </form>
+
+      <div class="filters" aria-label="Filter tasks">
+        <button class="filter-btn active" data-filter="all">All tasks</button>
+        <button class="filter-btn" data-filter="pending">To do</button>
+        <button class="filter-btn" data-filter="completed">Completed</button>
+      </div>
+
+      <div class="task-list" id="taskList"></div>
+    </section>
+
+    <div class="footer">SLOW DOWN · SHOW UP · KEEP GOING</div>
+  </main>
+
+  <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-6">Edit your task</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="editForm">
+          <div class="modal-body">
+            <label class="form-label" for="editTitle">Task name</label>
+            <input class="field mb-3" id="editTitle" maxlength="180" required>
+            <label class="form-label" for="editCategory">Category</label>
+            <select class="field mb-3" id="editCategory">
+              <option>Personal</option>
+              <option>Study</option>
+              <option>Work</option>
+              <option>Health</option>
+              <option>Other</option>
+            </select>
+            <label class="form-label" for="editDate">Due date</label>
+            <input class="field mb-3" id="editDate" type="date">
+            <label class="form-label" for="editPriority">Priority</label>
+            <select class="field" id="editPriority">
+              <option value="normal">Normal</option>
+              <option value="high">High priority</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="save-btn">Save changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const STORAGE_KEY = 'daylight-tasks-v1';
+    const THEME_KEY = 'daylight-theme-v1';
+
+    const $ = id => document.getElementById(id);
+    const list = $('taskList');
+    let tasks = loadTasks();
+    let filter = 'all';
+    let editingId = null;
+
+    function loadTasks() {
+      try {
+        const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        return Array.isArray(data) ? data.filter(t =>
+          t && typeof t.id === 'string' &&
+          typeof t.title === 'string'
+        ) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveTasks() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      } catch {
+        alert('Storage is unavailable. Your changes may not be saved.');
+      }
+    }
+
+    function makeId() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    function formatDate(date) {
+      if (!date) return '';
+      const parts = date.split('-').map(Number);
+      if (parts.length !== 3 || parts.some(n => !n)) return '';
+      return new Date(parts[0], parts[1] - 1, parts[2])
+        .toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;',
+        '"': '&quot;', "'": '&#39;'
+      })[char]);
+    }
+
+    function render() {
+      const completed = tasks.filter(t => t.completed).length;
+      const total = tasks.length;
+      const percent = total ? Math.round(completed / total * 100) : 0;
+
+      $('progressNumber').textContent = percent + '%';
+      $('doneCount').textContent = `${completed} / ${total}`;
+      $('progressBar').style.width = percent + '%';
+      $('taskCount').textContent = `${total} ${total === 1 ? 'task' : 'tasks'}`;
+
+      $('progressCopy').textContent = total === 0
+        ? 'Your day is full of possibilities.'
+        : percent === 100
+          ? 'Beautiful work. You did it!'
+          : `${total - completed} ${total - completed === 1 ? 'task' : 'tasks'} left to go.`;
+
+      document.querySelectorAll('[data-filter]').forEach(btn => {
+        const active = btn.dataset.filter === filter;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+
+      const shown = tasks.filter(t =>
+        filter === 'all' ||
+        (filter === 'pending' && !t.completed) ||
+        (filter === 'completed' && t.completed)
+      );
+
+      if (!shown.length) {
+        const message = total === 0
+          ? 'A fresh start. Add your first task above.'
+          : filter === 'pending'
+            ? 'Nothing pending. Enjoy your breathing room.'
+            : filter === 'completed'
+              ? 'Your completed tasks will appear here.'
+              : 'No tasks found.';
+        list.innerHTML = `<div class="empty">
+          <i class="bi bi-flower1"></i>${message}</div>`;
+        return;
+      }
+
+      list.innerHTML = shown.map(t => `
+        <article class="task ${t.completed ? 'completed' : ''}">
+          <input class="check" type="checkbox"
+            data-action="toggle" data-id="${escapeHTML(t.id)}"
+            aria-label="Complete ${escapeHTML(t.title)}"
+            ${t.completed ? 'checked' : ''}>
+          <div class="task-content">
+            <div class="task-title">${escapeHTML(t.title)}</div>
+            <div class="task-meta">
+              <span class="tag">${escapeHTML(t.category || 'Personal')}</span>
+              ${t.date ? `<span><i class="bi bi-calendar3 me-1"></i>${escapeHTML(formatDate(t.date))}</span>` : ''}
+              ${t.priority === 'high' ? '<span class="priority"><i class="bi bi-flag-fill me-1"></i>High</span>' : ''}
+            </div>
+          </div>
+          <div class="task-actions">
+            <button class="task-action" data-action="edit" data-id="${escapeHTML(t.id)}" aria-label="Edit task">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="task-action" data-action="delete" data-id="${escapeHTML(t.id)}" aria-label="Delete task">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    $('addForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const title = $('taskInput').value.trim();
+      if (!title) return;
+
+      tasks.unshift({
+        id: makeId(),
+        title,
+        category: 'Personal',
+        date: '',
+        priority: 'normal',
+        completed: false,
+        createdAt: Date.now()
+      });
+
+      saveTasks();
+      render();
+      $('taskInput').value = '';
+      $('taskInput').focus();
+    });
+
+    document.querySelector('.filters').addEventListener('click', event => {
+      const btn = event.target.closest('[data-filter]');
+      if (!btn) return;
+      filter = btn.dataset.filter;
+      render();
+    });
+
+    list.addEventListener('change', event => {
+      const checkbox = event.target.closest('[data-action="toggle"]');
+      if (!checkbox) return;
+      const task = tasks.find(t => t.id === checkbox.dataset.id);
+      if (!task) return;
+      task.completed = checkbox.checked;
+      saveTasks();
+      render();
+    });
+
+    const modal = new bootstrap.Modal($('editModal'));
+
+    list.addEventListener('click', event => {
+      const btn = event.target.closest('[data-action]');
+      if (!btn || btn.dataset.action === 'toggle') return;
+
+      const task = tasks.find(t => t.id === btn.dataset.id);
+      if (!task) return;
+
+      if (btn.dataset.action === 'delete') {
+        if (!confirm(`Delete "${task.title}"?`)) return;
+        tasks = tasks.filter(t => t.id !== task.id);
+        saveTasks();
+        render();
+      }
+
+      if (btn.dataset.action === 'edit') {
+        editingId = task.id;
+        $('editTitle').value = task.title;
+        $('editCategory').value = task.category || 'Personal';
+        $('editDate').value = task.date || '';
+        $('editPriority').value = task.priority || 'normal';
+        modal.show();
+      }
+    });
+
+    $('editForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const task = tasks.find(t => t.id === editingId);
+      const title = $('editTitle').value.trim();
+      if (!task || !title) return;
+
+      task.title = title;
+      task.category = $('editCategory').value;
+      task.date = $('editDate').value;
+      task.priority = $('editPriority').value;
+
+      saveTasks();
+      render();
+      modal.hide();
+    });
+
+    function setTheme(dark) {
+      document.body.classList.toggle('dark', dark);
+      $('themeIcon').className = dark ? 'bi bi-sun' : 'bi bi-moon-stars';
+      $('themeBtn').setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+      $('theme-color')?.setAttribute('content', dark ? '#20251f' : '#f7f6f1');
+      document.querySelector('meta[name="theme-color"]').content = dark ? '#20251f' : '#f7f6f1';
+      $('themeBtn').title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+      try { localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light'); } catch {}
+    }
+
+    $('themeBtn').addEventListener('click', () => {
+      setTheme(!document.body.classList.contains('dark'));
+    });
+
+    try {
+      setTheme(localStorage.getItem(THEME_KEY) === 'dark');
+    } catch {
+      setTheme(false);
+    }
+
+    $('todayLabel').textContent = new Date().toLocaleDateString(undefined, {
+      weekday: 'long', month: 'long', day: 'numeric'
+    }).toUpperCase();
+
+    render();
+  </script>
+</body>
+</html>
